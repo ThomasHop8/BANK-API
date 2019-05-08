@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Hoekbank DB User</title>
+  </head>
+  <body>
+    <form method="post" action="../api/v1/user/create/db">
+      <div class="form_description">
+        <h2>Create new DB User</h2>
+        <p>Fill in the form to create a new database user.</p>
+      </div>
+
+      <label class="description" for="firstname">Username </label>
+      <input name="username" class="element text medium" type="text" maxlength="255" value=""/>
+      <br/>
+      <label class="description" for="password">Password </label>
+      <input name="password" class="element text medium" type="password" maxlength="255" value=""/>
+      <br/>
+      <br/>
+      <input class="button_text" type="submit" name="submit" value="Create DB User" />
+    </form>
+  </body>
+</html>

@@ -30,8 +30,13 @@ class UserController {
      */
     function login($request) {
         $emp = $request->getParsedBody();
-        $sql = "SELECT * FROM Gebruiker WHERE email = '" . $emp['email'] . "'";
-        $userData = $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC)[0];
+        $email = $emp['email'];
+
+        $userSQL = "SELECT * FROM Gebruiker WHERE email = :email";
+        $stmt = $this->db->prepare($userSQL);
+        $stmt->execute([':email' => $email]);
+
+        $userData = $stmt->fetchAll(PDO::FETCH_ASSOC)[0];
 
         if(!password_verify($emp['password'], $userData['Wachtwoord']))
           return '{"error": true, "message": "Wrong username & password combination"}';
@@ -42,8 +47,24 @@ class UserController {
         $token = $this->auth->generateToken($userData['UserID']);
         $this->__updateUserToken($userData['Email'], $token);
         $userData['Token'] = $token;
+        $userData['success'] = true;
 
         echo json_encode($userData);
+    }
+
+    function reject($request) {
+      $emp = $request->getParsedBody();
+      $idnum = $emp['idnum'];
+      $reason = $emp['reason'];
+
+      // Check if auth token matches user and has an employee email, return 401 if not
+      if(!$this->auth->authenticateEmployee($request, $response))
+        return $response->withStatus(401);
+
+      $rejectSQL = "INSERT INTO Blocked (IdentificationNumber, Notitie, Timestamp) VALUES (:idnum, :reason, CURRENT_TIMESTAMP)";
+      $stmt = $this->db->prepare($rejectSQL);
+
+      return '{"error": ' . ($stmt->execute([':idnum' => $idnum, ':reason' => $reason]) != '' ? 'true': 'false') . '}';
     }
 
 
@@ -54,7 +75,7 @@ class UserController {
      * @return JSON return
      */
     private function __updateUserToken($user, $token) {
-      $updatesql = "UPDATE Gebruiker SET Token = '" . $token . "', LastLogin = CURRENT_TIMESTAMP WHERE email = '" . $user . "';";
-      $this->db->query($updatesql);
+      $updateTokenSQL = "UPDATE Gebruiker SET Token = :token, LastLogin = CURRENT_TIMESTAMP WHERE email = :user";
+      $this->db->prepare($updateTokenSQL)->execute([':token' => $token, ':user' => $user]);
     }
 }

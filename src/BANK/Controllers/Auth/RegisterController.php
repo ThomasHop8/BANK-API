@@ -13,6 +13,7 @@ namespace BANK\Controllers\Auth;
 use PDO;
 use Interop\Container\ContainerInterface;
 use \Firebase\JWT\JWT;
+use BANK\Controllers\Account\AccountController;
 
 class RegisterController {
 
@@ -20,9 +21,13 @@ class RegisterController {
     private $lastAddressID;
     private $lastLoginID;
 
+    protected $accountController;
+
     public function __construct(ContainerInterface $container)   {
         $this->db = $container->get('db');
         $this->auth = $container->get('auth');
+
+        $this->$accountController = new AccountController($container);
     }
 
     /**
@@ -59,8 +64,10 @@ class RegisterController {
       if(!$this->__insertUser($user))
         return '{"error": true, "message": "DB main user insert fail."}';
 
-      // Return success message if all steps are completed without errors
-      return '{"error": false, "message": "Insert succesfull!"}';
+      // Return success message and send password mail if all steps are completed without errors
+      $this->__sendPasswordMail($user->email, $user->fullname, $user->password);
+      $this->$accountController->__createAccount(1, $this->lastLoginID);
+      return '{"success": true, "message": "Insert successfull!"}';
     }
 
     /**
@@ -72,8 +79,8 @@ class RegisterController {
       $user = $emp['username'];
       $password = $emp['password'];
 
-      $sql = "CREATE USER '" . $user . "'@'localhost' IDENTIFIED BY '" . $password . "'; GRANT USAGE ON *.* TO '" . $user . "'@'localhost' REQUIRE NONE WITH MAX_QUERIES_PER_HOUR 5000 MAX_CONNECTIONS_PER_HOUR 25 MAX_UPDATES_PER_HOUR 5 MAX_USER_CONNECTIONS 1; GRANT SELECT, INSERT, UPDATE ON `BANK`.* TO '" . $user . "'@'localhost';";
-      $stmt = $this->db->query($sql);
+      $sql = "CREATE USER ':user'@'localhost' IDENTIFIED BY ':password'; GRANT USAGE ON *.* TO ':user'@'localhost' REQUIRE NONE WITH MAX_QUERIES_PER_HOUR 5000 MAX_CONNECTIONS_PER_HOUR 25 MAX_UPDATES_PER_HOUR 5 MAX_USER_CONNECTIONS 1; GRANT SELECT, INSERT, UPDATE ON `BANK`.* TO ':user'@'localhost';";
+      $this->db->prepare($sql)->execute([':user' => $user, ':password' => $password]);
       echo '<script>window.location.href = "https://hoekbank.tk/phpmyadmin";</script>';
     }
 
@@ -112,11 +119,7 @@ class RegisterController {
       $loginUserSQL = "INSERT INTO Gebruiker (UserID, Email, Wachtwoord, Token, LastLogin) VALUES (NULL, :email, :password, NULL, CURRENT_TIMESTAMP)";
       $hashedPassword = password_hash($user->password, PASSWORD_DEFAULT);
 
-      $stmt = $this->db->prepare($loginUserSQL);
-      $stmt->bindParam("email", $user->email);
-      $stmt->bindParam("password", $hashedPassword);
-
-      return $stmt->execute();
+      return $this->db->prepare($loginUserSQL)->execute([':email' => $user->email, ':password' => $hashedPassword]);
     }
 
     /**
@@ -137,5 +140,30 @@ class RegisterController {
       $stmt->bindParam("login", $this->lastLoginID);
 
       return $stmt->execute();
+    }
+
+    /**
+     * Method for sending a styled email to the user
+     * @param  String $email email of user
+     * @param  String $username name of user
+     * @param  String $password password of user
+     */
+    private function __sendPasswordMail($email, $username, $password) {
+      $subject = 'Uw registratie bij Hoekbank';
+      $headers = 'From: info@hoekbank.tk' . "\r\n" .
+      'Reply-To: info@hoekbank.tk' . "\r\n" .
+      'Return-Path: info@hoekbank.tk' . "\r\n" .
+      'MIME-Version: 1.0' . "\r\n" .
+      'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
+      'Organization: Hoekbank' . "\r\n" .
+      'X-Mailer: PHP/' . phpversion();
+
+      $message = file_get_contents("../public/mail/password.html");
+      $vars = array(
+        '{{username}}' => $username,
+        '{{password}}' => $password,
+      );
+
+      mail($email, $subject, strtr($message, $vars), $headers);
     }
 }

@@ -93,14 +93,15 @@ class Auth {
      */
     private function _requestUser(Request $request) {
       if($token = $request->getAttribute('token')) {
-        $sql = "SELECT " . self::SUBJECT_IDENTIFIER . ", Email FROM Gebruiker WHERE UserID = " . $token[self::SUBJECT_IDENTIFIER];
+        $userSQL = "SELECT " . self::SUBJECT_IDENTIFIER . ", Email FROM Gebruiker WHERE UserID = :token";
         try {
-            $stmt = $this->db->query($sql);
+            $stmt = $this->db->prepare($userSQL);
+            $stmt->execute([':token' => $token[self::SUBJECT_IDENTIFIER]]);
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $data;
         } catch(PDOException $e) {
             return '{"error":{"text":'. $e->getMessage() .'}}';
         }
-      };
+      }
     }
 }

@@ -6,6 +6,7 @@ use Slim\Http\Response;
 
 use BANK\Controllers\Auth\RegisterController;
 use BANK\Controllers\User\UserController;
+use BANK\Controllers\Account\AccountController;
 
 // Routes
 $app->get('/[{name}]', function (Request $request, Response $response, array $args) {
@@ -28,6 +29,9 @@ $app->group('/api', function () use ($app) {
     $app->post('/user/create', RegisterController::class . ':register')->add($jwtMiddleware);
     $app->post('/user/create/db', RegisterController::class . ':registerDB');
     $app->post('/user/login', UserController::class . ':login');
+    $app->post('/user/reject', UserController::class . ':reject')->add($jwtMiddleware);
     $app->post('/user/device', UserController::class . ':device');
+
+    $app->post('/account/new', AccountController::class . ':new')->add($jwtMiddleware);
   });
 });

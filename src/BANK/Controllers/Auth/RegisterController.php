@@ -144,6 +144,32 @@ class RegisterController {
     }
 
     /**
+     * Method for creating a new 'company' user
+     * @param  JSONObject $company object of user
+     * @return Boolean return success
+     */
+    private function _insertCompany($company) {
+      // Check if company object exists
+      if(!$company)
+        return false;
+
+      // Prepare SQL statement as string
+      $companySQL = "INSERT INTO Bedrijf (KVK, Bedrijfsnaam, GegevensID, UserID) VALUES (:kvk, :compname, :gegevensID, :login)";
+
+      // Prepare statement in PDO
+      $stmt = $this->db->prepare($companySQL);
+
+      // Bind all the parameters starting with :
+      $stmt->bindParam("kvk", $company->kvk);
+      $stmt->bindParam("compname", $company->compname);
+      $stmt->bindParam("gegevensID", $this->lastAddressID);
+      $stmt->bindParam("login", $this->lastLoginID);
+
+      // Return bool
+      return $stmt->execute();
+    }
+
+    /**
      * Method for sending a styled email to the user
      * @param  String $email email of user
      * @param  String $username name of user

@@ -132,6 +132,29 @@ class AccountController {
       return $stmt->execute();
     }
 
+    /**
+     * Method for creating a new account auth role
+     * @param  String $rolnaam string of role name
+     * @return Boolean return success
+     */
+    public function insertAuthRole($rolnaam) {
+      // Check if a role name is provided
+      if(!$rolnaam)
+        return false;
+
+      // Prepare SQL statement as string
+      $authRoleSQL = "INSERT INTO MachtigingRole (RoleID, RoleNaam) VALUES (NULL, :role)";
+
+      // Prepare statement in PDO
+      $stmt = $this->db->prepare($authRoleSQL);
+
+      // Bind all the parameters starting with :
+      $stmt->bindParam("role", $rolnaam);
+
+      // Return bool
+      return $stmt->execute();
+    }
+
 
 
     /**

@@ -45,7 +45,7 @@ class UserController {
         unset($userData['Token']);
 
         $token = $this->auth->generateToken($userData['UserID']);
-        $this->__updateUserToken($userData['Email'], $token);
+        $this->_updateUserToken($userData['Email'], $token);
         $userData['Token'] = $token;
         $userData['success'] = true;
 
@@ -64,7 +64,7 @@ class UserController {
       $rejectSQL = "INSERT INTO Blocked (IdentificationNumber, Notitie, Timestamp) VALUES (:idnum, :reason, CURRENT_TIMESTAMP)";
       $stmt = $this->db->prepare($rejectSQL);
 
-      return '{"error": ' . ($stmt->execute([':idnum' => $idnum, ':reason' => $reason]) != '' ? 'true': 'false') . '}';
+      return '{"error": ' . ($stmt->execute([':idnum' => $idnum, ':reason' => $reason]) != '' ? 'false': 'true') . '}';
     }
 
 
@@ -74,7 +74,7 @@ class UserController {
      * @param  Integer $token user token
      * @return JSON return
      */
-    private function __updateUserToken($user, $token) {
+    private function _updateUserToken($user, $token) {
       $updateTokenSQL = "UPDATE Gebruiker SET Token = :token, LastLogin = CURRENT_TIMESTAMP WHERE email = :user";
       $this->db->prepare($updateTokenSQL)->execute([':token' => $token, ':user' => $user]);
     }

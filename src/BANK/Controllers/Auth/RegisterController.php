@@ -18,10 +18,10 @@ use BANK\Controllers\Account\AccountController;
 class RegisterController {
 
     protected $auth;
+    protected $accountController;
+
     private $lastAddressID;
     private $lastLoginID;
-
-    protected $accountController;
 
     public function __construct(ContainerInterface $container)   {
         $this->db = $container->get('db');
@@ -49,24 +49,25 @@ class RegisterController {
         return $response->withStatus(401);
 
       // Insert address data from user object, return error if failed
-      if(!$this->__insertAddressData($user))
+      if(!$this->_insertAddressData($user))
         return '{"error": true, "message": "DB address insert fail."}';
 
       $this->lastAddressID = $this->db->lastInsertId();
 
       // Insert login data from user object, return error if failed
-      if(!$this->__insertLoginUser($user))
+      if(!$this->_insertLoginUser($user))
         return '{"error": true, "message": "DB login insert fail."}';
 
       $this->lastLoginID = $this->db->lastInsertId();
 
       // Insert main user from user object, return error if failed
-      if(!$this->__insertUser($user))
+      if(!$this->_insertUser($user))
         return '{"error": true, "message": "DB main user insert fail."}';
 
       // Return success message and send password mail if all steps are completed without errors
-      $this->__sendPasswordMail($user->email, $user->fullname, $user->password);
-      $this->$accountController->__createAccount(1, $this->lastLoginID);
+      $this->_sendPasswordMail($user->email, $user->fullname, $user->password);
+      $this->$accountController->createAccount(1, $this->lastLoginID);
+
       return '{"success": true, "message": "Insert successfull!"}';
     }
 
@@ -74,15 +75,15 @@ class RegisterController {
      * Method for registering new DB user account
      * @return ECHO return database webpage
      */
-    public function registerDB($request, $response, $args) {
-      $emp = $request->getParsedBody();
-      $user = $emp['username'];
-      $password = $emp['password'];
+     public function registerDB($request, $response, $args) {
+       $emp = $request->getParsedBody();
+       $user = $emp['username'];
+       $password = $emp['password'];
 
-      $sql = "CREATE USER ':user'@'localhost' IDENTIFIED BY ':password'; GRANT USAGE ON *.* TO ':user'@'localhost' REQUIRE NONE WITH MAX_QUERIES_PER_HOUR 5000 MAX_CONNECTIONS_PER_HOUR 25 MAX_UPDATES_PER_HOUR 5 MAX_USER_CONNECTIONS 1; GRANT SELECT, INSERT, UPDATE ON `BANK`.* TO ':user'@'localhost';";
-      $this->db->prepare($sql)->execute([':user' => $user, ':password' => $password]);
-      echo '<script>window.location.href = "https://hoekbank.tk/phpmyadmin";</script>';
-    }
+       $sql = "CREATE USER '" . $user . "'@'localhost' IDENTIFIED BY '" . $password . "'; GRANT USAGE ON *.* TO '" . $user . "'@'localhost' REQUIRE NONE WITH MAX_QUERIES_PER_HOUR 5000 MAX_CONNECTIONS_PER_HOUR 25 MAX_UPDATES_PER_HOUR 5 MAX_USER_CONNECTIONS 1; GRANT SELECT, INSERT, UPDATE ON `BANK`.* TO '" . $user . "'@'localhost';";
+       $stmt = $this->db->query($sql);
+       echo '<script>window.location.href = "https://hoekbank.tk/phpmyadmin";</script>';
+     }
 
 
 
@@ -91,7 +92,7 @@ class RegisterController {
      * @param  JSONObject $user object of user
      * @return Boolean return success
      */
-    private function __insertAddressData($user) {
+    private function _insertAddressData($user) {
       if(!$user)
         return false;
 
@@ -112,7 +113,7 @@ class RegisterController {
      * @param  JSONObject $user object of user
      * @return Boolean return success
      */
-    private function __insertLoginUser($user) {
+    private function _insertLoginUser($user) {
       if(!$user)
         return false;
 
@@ -127,7 +128,7 @@ class RegisterController {
      * @param  JSONObject $user object of user
      * @return Boolean return success
      */
-    private function __insertUser($user) {
+    private function _insertUser($user) {
       if(!$user)
         return false;
 
@@ -148,7 +149,7 @@ class RegisterController {
      * @param  String $username name of user
      * @param  String $password password of user
      */
-    private function __sendPasswordMail($email, $username, $password) {
+    private function _sendPasswordMail($email, $username, $password) {
       $subject = 'Uw registratie bij Hoekbank';
       $headers = 'From: info@hoekbank.tk' . "\r\n" .
       'Reply-To: info@hoekbank.tk' . "\r\n" .

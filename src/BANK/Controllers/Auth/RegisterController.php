@@ -93,18 +93,24 @@ class RegisterController {
      * @return Boolean return success
      */
     private function _insertAddressData($user) {
+      // Check if user object exists
       if(!$user)
         return false;
 
+      // Prepare SQL statement as string
       $addressSQL = "INSERT INTO AdresGegeven (GegevensID, Straatnaam, Huisnummer, Postcode, Woonplaats, Telefoon) VALUES (NULL, :straatnaam, :huisnr, :postcode, :woonplaats, :tel)";
 
+      // Prepare statement in PDO
       $stmt = $this->db->prepare($addressSQL);
+
+      // Bind all the parameters starting with :
       $stmt->bindParam("straatnaam", $user->straatnaam);
       $stmt->bindParam("huisnr", $user->huisnummer);
       $stmt->bindParam("postcode", $user->postcode);
       $stmt->bindParam("woonplaats", $user->woonplaats);
       $stmt->bindParam("tel", $user->telefoonnummer);
 
+      // Execute and return bool
       return $stmt->execute();
     }
 

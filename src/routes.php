@@ -7,6 +7,7 @@ use Slim\Http\Response;
 use BANK\Controllers\Auth\RegisterController;
 use BANK\Controllers\User\UserController;
 use BANK\Controllers\Account\AccountController;
+use BANK\Controllers\Account\TransactionController;
 
 // Routes
 $app->get('/[{name}]', function (Request $request, Response $response, array $args) {
@@ -33,5 +34,10 @@ $app->group('/api', function () use ($app) {
     $app->post('/user/device', UserController::class . ':device');
 
     $app->post('/account/new', AccountController::class . ':new')->add($jwtMiddleware);
+    $app->post('/account/authorize', AccountController::class . ':authorize')->add($jwtMiddleware);
+    $app->post('/account/get/all', AccountController::class . ':getAll')->add($jwtMiddleware);
+    $app->post('/account/get/email', AccountController::class . ':getEmail')->add($jwtMiddleware);
+    $app->post('/account/get/transactions', TransactionController::class . ':getAll')->add($jwtMiddleware);
+
   });
 });

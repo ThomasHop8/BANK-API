@@ -32,7 +32,10 @@ class RegisterController {
 
     /**
      * Method for registering new user
-     * @param  ArrayObject $request POST API object
+     * @author Thomas Hopstaken
+     * @param ArrayObject $request POST API request object
+     * @param ArrayObject $response POST API response object
+     * @param ArrayObject $args POST API arguments object
      * @return JSON return
      */
     public function register($request, $response, $args) {
@@ -73,6 +76,10 @@ class RegisterController {
 
     /**
      * Method for registering new DB user account
+     * @author Thomas Hopstaken
+     * @param ArrayObject $request POST API request object
+     * @param ArrayObject $response POST API response object
+     * @param ArrayObject $args POST API arguments object
      * @return ECHO return database webpage
      */
      public function registerDB($request, $response, $args) {
@@ -89,6 +96,7 @@ class RegisterController {
 
     /**
      * Method for inserting user address data
+     * @author Chahine Ben Meryem
      * @param  JSONObject $user object of user
      * @return Boolean return success
      */
@@ -116,6 +124,7 @@ class RegisterController {
 
     /**
      * Method for creating a new login user
+     * @author Thomas Hopstaken
      * @param  JSONObject $user object of user
      * @return Boolean return success
      */
@@ -131,6 +140,7 @@ class RegisterController {
 
     /**
      * Method for creating a new 'particulier' user
+     * @author Thomas Hopstaken
      * @param  JSONObject $user object of user
      * @return Boolean return success
      */
@@ -151,6 +161,7 @@ class RegisterController {
 
     /**
      * Method for creating a new 'company' user
+     * @author Kylian Nieuwenhuis
      * @param  JSONObject $company object of user
      * @return Boolean return success
      */
@@ -177,6 +188,7 @@ class RegisterController {
 
     /**
      * Method for sending a styled email to the user
+     * @author Thomas Hopstaken
      * @param  String $email email of user
      * @param  String $username name of user
      * @param  String $password password of user

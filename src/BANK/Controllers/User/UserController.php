@@ -25,6 +25,7 @@ class UserController {
 
     /**
      * Method for logging in the user
+     * @author Thomas Hopstaken
      * @param  ArrayObject $request POST API object
      * @return JSON return
      */
@@ -32,18 +33,22 @@ class UserController {
         $emp = $request->getParsedBody();
         $email = $emp['email'];
 
+        // Fetching all users from database by email
         $userSQL = "SELECT * FROM Gebruiker WHERE email = :email";
         $stmt = $this->db->prepare($userSQL);
         $stmt->execute([':email' => $email]);
 
         $userData = $stmt->fetchAll(PDO::FETCH_ASSOC)[0];
 
+        // Verifying the given password
         if(!password_verify($emp['password'], $userData['Wachtwoord']))
           return '{"error": true, "message": "Wrong username & password combination"}';
 
+        // Unsetting the password and token from array
         unset($userData['Wachtwoord']);
         unset($userData['Token']);
 
+        // Generating the user token
         $token = $this->auth->generateToken($userData['UserID']);
         $this->_updateUserToken($userData['Email'], $token);
         $userData['Token'] = $token;
@@ -52,6 +57,12 @@ class UserController {
         echo json_encode($userData);
     }
 
+    /**
+     * Method for rejecting a new custommer
+     * @author Thomas Hopstaken
+     * @param  ArrayObject $request POST API object
+     * @return JSON return
+     */
     function reject($request) {
       $emp = $request->getParsedBody();
       $idnum = $emp['idnum'];
@@ -70,6 +81,7 @@ class UserController {
 
     /**
      * Method for updating the new user auth token and timestamp
+     * @author Thomas Hopstaken
      * @param  Integer $user userID
      * @param  Integer $token user token
      * @return JSON return

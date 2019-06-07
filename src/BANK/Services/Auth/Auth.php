@@ -31,6 +31,7 @@ class Auth {
 
     /**
      * Method for logging in the user
+     * @author Thomas Hopstaken
      * @param  Integer $userid userID
      * @return Integer token return
      */
@@ -53,6 +54,7 @@ class Auth {
 
     /**
      * Method for authenticating the user against a token
+     * @author Thomas Hopstaken
      * @param  ArrayObject $request POST API object
      * @param  Integer $user userID
      * @param  ArrayObject $response POST response object
@@ -70,6 +72,7 @@ class Auth {
 
     /**
      * Method for authenticating the employee against a token and employee status
+     * @author Thomas Hopstaken
      * @param  ArrayObject $request POST API object
      * @param  Integer $user userID
      * @param  ArrayObject $response POST response object
@@ -88,6 +91,7 @@ class Auth {
 
     /**
      * Method for requesting a user based on the token
+     * @author Thomas Hopstaken
      * @param  ArrayObject $request POST API object
      * @return JSON return
      */

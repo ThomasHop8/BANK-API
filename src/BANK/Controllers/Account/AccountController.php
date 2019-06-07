@@ -25,7 +25,15 @@ class AccountController {
         $this->auth = $container->get('auth');
     }
 
-    function new($request, $response, $args) {
+    /**
+     * Method for creating a new bank account (rekening)
+     * @author Thomas Hopstaken
+     * @param  ArrayObject $request POST API request object
+     * @param  ArrayObject $response POST API response object
+     * @param  ArrayObject $args POST API arguments object
+     * @return String return success
+     */
+    public function new($request, $response, $args) {
       $emp = $request->getParsedBody()['account'];
 
       // Check if account object is provided
@@ -45,7 +53,15 @@ class AccountController {
       return '{"success": true, "message": "Account created successfully!"}';
     }
 
-    function authorize($request, $response, $args) {
+    /**
+     * Method for creating a bank account authorization
+     * @author Thomas Hopstaken
+     * @param  ArrayObject $request POST API request object
+     * @param  ArrayObject $response POST API response object
+     * @param  ArrayObject $args POST API arguments object
+     * @return String return success
+     */
+    public function authorize($request, $response, $args) {
       $emp = $request->getParsedBody()['account'];
 
       // Check if account object is provided
@@ -65,6 +81,13 @@ class AccountController {
       return '{"success": true, "message": "Account authorized successfully!"}';
     }
 
+    /**
+     * Method for fetching all bank accounts for single user by ID
+     * @author Thomas Hopstaken
+     * @param  ArrayObject $request POST API request object
+     * @param  ArrayObject $response POST API response object
+     * @return JSON return array containing all acounts
+     */
     public function getAll($request, $response) {
       $emp = $request->getParsedBody();
       $user = $emp['user'];
@@ -80,6 +103,13 @@ class AccountController {
       return $this->_getUserAccounts($user);
     }
 
+    /**
+     * Method for fetching all bank accounts for single user by email
+     * @author Thomas Hopstaken
+     * @param  ArrayObject $request POST API request object
+     * @param  ArrayObject $response POST API response object
+     * @return JSON return array containing all acounts
+     */
     public function getEmail($request, $response) {
       $emp = $request->getParsedBody();
       $user = $emp['user'];
@@ -103,8 +133,13 @@ class AccountController {
       return $this->_getUserAccounts($userID);
     }
 
-
-
+    /**
+     * Method for inserting the user account into the database
+     * @author Thomas Hopstaken
+     * @param Integer $type bank type ID
+     * @param Integer $user user ID
+     * @return Boolean return success
+     */
     public function createAccount($type, $user) {
       $accountSQL = "INSERT INTO Rekening (RekeningNr, TypeID, UserID, Saldo) VALUES (:reknr, :type, :user, '0')";
       $stmt = $this->db->prepare($accountSQL);
@@ -121,6 +156,14 @@ class AccountController {
       }
     }
 
+    /**
+     * Method for inserting the bank account authorization
+     * @author Thomas Hopstaken
+     * @param  Integer $user user ID
+     * @param  Integer $rekNr account number
+     * @param  Integer $role authorization role
+     * @return Boolean return success
+     */
     public function insertAuthorization($user, $rekNr, $role) {
       $authSQL = "INSERT INTO Machtiging (MachtigingID, UserID, RekNr, RoleID) VALUES (NULL, :user, :reknr, :role)";
       $stmt = $this->db->prepare($authSQL);
@@ -134,6 +177,7 @@ class AccountController {
 
     /**
      * Method for creating a new account auth role
+     * @author Rogier Rijsdijk
      * @param  String $rolnaam string of role name
      * @return Boolean return success
      */
@@ -159,6 +203,7 @@ class AccountController {
 
     /**
      * Method for returning array of user accounts
+     * @author Thomas Hopstaken
      * @param  Int $user user id
      * @return JSON return array containing all user accounts
      */
@@ -172,6 +217,7 @@ class AccountController {
 
     /**
      * Method for generating a valid random account number
+     * @author Thomas Hopstaken
      * @return String return validated random number
      */
     private function _generateAccountNumber() {
@@ -188,6 +234,7 @@ class AccountController {
 
     /**
      * Method for testing the generated account number
+     * @author Thomas Hopstaken
      * @param  Int $accNum account number
      * @return Boolean return if test passes or fails
      */

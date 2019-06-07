@@ -26,6 +26,13 @@ class TransactionController {
     function new($request, $response, $args) {
     }
 
+    /**
+     * Method for fetching all account transactions of single user
+     * @author Thomas Hopstaken
+     * @param  ArrayObject $request POST API request object
+     * @param  ArrayObject $response POST API response object
+     * @return JSON return array containing all transactions
+     */
     public function getAll($request, $response) {
       $emp = $request->getParsedBody();
 
@@ -44,9 +51,10 @@ class TransactionController {
 
 
     /**
-     * Method for returning array of user accounts
-     * @param  Int $user user id
-     * @return JSON return array containing all user accounts
+     * Method for returning array of account transactions
+     * @author Thomas Hopstaken
+     * @param  Int $reknr account number
+     * @return JSON return array containing all transactions
      */
     private function _getAccountTransactions($reknr) {
       $accountSQL = "SELECT Transactie.Bedrag, Transactie.TransTime, part1.`Volledige Naam` AS InNaam, part2.`Volledige Naam` AS UitNaam, comp1.Bedrijfsnaam AS InBedrijf, comp2.Bedrijfsnaam AS UitBedrijf FROM Transactie JOIN TransIn ON TransIn.TransID = Transactie.TransID JOIN TransOut ON TransOut.TransID = Transactie.TransID JOIN Rekening AS rek1 ON rek1.RekeningNr = TransIn.RekNr JOIN Rekening AS rek2 ON rek2.RekeningNr = TransOut.RekNr LEFT JOIN Particulier AS part1 ON rek1.UserID = part1.UserID LEFT JOIN Particulier AS part2 ON rek2.UserID = part2.UserID LEFT JOIN Bedrijf AS comp1 ON rek1.UserID = comp1.UserID LEFT JOIN Bedrijf AS comp2 ON rek2.UserID = comp2.UserID WHERE TransIn.RekNr = :reknr OR TransOut.RekNr = :reknr";
